@@ -14,7 +14,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// Define our message object
 type actionMessage struct {
 	X string // "0" || "10" ||  "-10"
 	Y string // "0" || "10" ||  "-10"
@@ -69,7 +68,6 @@ func initExceptionsList(){
 		exceptionsMap.items[i] = Exception{ExceptionType: exceptionsTypes[i], X: 0, Y: 0, Show: false}
 		fmt.Println(" ", exceptionsMap.items[i])
 	}
-
 	fmt.Println("init Exceptions done " )
 }
 
@@ -77,12 +75,10 @@ func Set()(Exception, bool) {
 	var min, max int = 50, 600
 	exceptionsMap.Lock()
 	defer exceptionsMap.Unlock()
-	var i = rand.Intn(len(exceptionsTypes))
-	if !(exceptionsMap.items[i].Show){
+	if i := rand.Intn(len(exceptionsTypes)); !(exceptionsMap.items[i].Show){
 		exceptionsMap.items[i].Show = true
 		exceptionsMap.items[i].X= int64(rand.Intn(max - min + 1) + min)
 		exceptionsMap.items[i].Y= int64(rand.Intn(max - min + 1) + min)
-		fmt.Println("new Exception: ", exceptionsMap.items[i] )
 		return exceptionsMap.items[i],true
 	}
 	return Exception{},false
@@ -91,10 +87,8 @@ func Set()(Exception, bool) {
 func RemoveRand() (Exception, bool) {
 	exceptionsMap.Lock()
 	defer exceptionsMap.Unlock()
-	var i = rand.Intn(len(exceptionsTypes))
-	if exceptionsMap.items[i].Show{
+	if i := rand.Intn(len(exceptionsTypes)); exceptionsMap.items[i].Show{
 		exceptionsMap.items[i].Show = false
-		fmt.Println("removed rand Exception: ", exceptionsMap.items[i] )
 		return exceptionsMap.items[i], true
 	}
 	return Exception{},false
@@ -121,16 +115,13 @@ func HandleExceptionCollision(newX int64, newY int64 ,player Player ) (Exception
 }
 
 func handleNewPlayer(ws *websocket.Conn) {
-	rand.Seed(time.Now().UnixNano())
 	player := Player{Id: uuid.New(), X: int64(rand.Intn(600)), Y: int64(rand.Intn(300)), Score: 0, Show: true, ExceptionType: exceptionsTypes[rand.Intn(3)], Color: [3]int{rand.Intn(256), rand.Intn(256), rand.Intn(256)}, Collision: false}
-
 	ws.WriteJSON(ElementsMsg{Self: &player}) //send to client active player as self
 
 	//send all current players to the new player
 	for key := range clients {
-		err := ws.WriteJSON(ElementsMsg{Plyer: clients[key]})
-		if err != nil {
-			log.Printf("130 error: %v", err)
+		if err := ws.WriteJSON(ElementsMsg{Plyer: clients[key]}); err != nil {
+			log.Printf("124 error: %v", err)
 			ws.Close()
 			delete(clients, ws)
 		}
@@ -140,9 +131,8 @@ func handleNewPlayer(ws *websocket.Conn) {
 	clients[ws] = &player
 
 	var msg screenWH
-	err := ws.ReadJSON(&msg)
-	if err != nil {
-		log.Printf(" 142 error: %v", err)
+	if err := ws.ReadJSON(&msg); err != nil {
+		log.Printf("135 error: %v", err)
 		var plyr = clients[ws]
 		plyr.Show = false
 		broadcastMsg <- ElementsMsg{Plyer: plyr}
@@ -203,9 +193,8 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 
 	for {
 		var msg actionMessage
-		err := ws.ReadJSON(&msg)
-		if err != nil {
-			log.Printf("212 error: %v", err)
+		if err := ws.ReadJSON(&msg); err != nil {
+			log.Printf("197 error: %v", err)
 			plyrMsg := clients[ws]
 			plyrMsg.Show = false
 			broadcastMsg <- ElementsMsg{Plyer: plyrMsg}
@@ -222,9 +211,8 @@ func broadcastMessages() {
 	for {
 		msg := <-broadcastMsg
 		for client := range clients {
-			err := client.WriteJSON(msg)
-			if err != nil {
-				log.Printf("224 error: %v", err)
+			if err := client.WriteJSON(msg); err != nil {
+				log.Printf("215 error: %v", err)
 				client.Close()
 				delete(clients, client)
 			}
@@ -233,8 +221,9 @@ func broadcastMessages() {
 }
 
 func main() {
-	fmt.Println("ExceptionalMonkeys ... ")
 	rand.Seed(time.Now().UnixNano())
+	fmt.Println("ExceptionalMonkeys ... ")
+
 	http.HandleFunc("/ws", handleConnections)
 	initExceptionsList()
 	go broadcastMessages()
