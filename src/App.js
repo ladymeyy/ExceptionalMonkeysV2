@@ -1,40 +1,26 @@
 
-import React, { useCallback } from 'react';
+import React, {useState,useCallback} from 'react';
+import Game from './components/Game/Game'
+import UserLogin from './components/userLogin/UserLogin'
 import './App.css';
-import { useWebSocket } from './hooks/useWebSocket'
-import { useBodyBounderies } from './hooks/useBodyBounderies'
-import { ws, playerMoves } from './Utils.js/Utils'
-import { useEventListener } from './hooks/useEventListener'
-import Monkeys from './components/Monkeys'
-import Score from './components/score/Score'
-import Dialog from './components/dialog/Dialog'
-import Exceptions from './components/exceptions/Exceptions'
 
-function App() {
-  const bodyBounderies = useBodyBounderies()
-  const [playState, sendMSG,webSocket] = useWebSocket(ws, bodyBounderies)
-  const showKeyCode = useCallback(({ key }) => {
-    sendMSG(playerMoves[key])
-  }, [sendMSG]);
-  
-  useEventListener('keydown', showKeyCode);
+function App() { 
+
+  const [username, setUsername] = useState("")
+  const [isGameReady, setIsGameReady] = useState(false)
+
+  const changeInput =(e)=>{
+    setUsername(e.target.value)
+  }
+  const onclick=useCallback(()=>{
+    if(!username)return
+    setIsGameReady(true)
+  },[username])
   return (
-    <>      
-    { webSocket && webSocket.readyState === 1 ?
-      playState.players.length === 1 ?
-      <Dialog msg={'Waiting for other players to play'} />
-      :
-      <>
-        <Score players={playState.players} />
-        <Exceptions exceptions={playState.exceptions} />
-        <Monkeys players={playState.players} />
-      </>
-      :
-      <Dialog msg={'Waiting for server'} />
-
-    }
-
-    </>
+    <>  
+    {isGameReady ? <Game username={username} /> : <UserLogin val={username}  changeInput={changeInput} onclick={onclick}/>}
+        
+  </>
   );
 }
 export default App;

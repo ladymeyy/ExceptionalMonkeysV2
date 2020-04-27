@@ -1,0 +1,46 @@
+.popup{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    background-color:#48241b;
+    border-radius: 34px;
+    box-shadow: 0 2px 26px 0 rgba(0, 0, 0, 0.24);
+    border: solid 3px rgba(255, 255, 255, 0.6);
+    font-size: 30px;
+    padding:50px;
+    text-align: center;
+    color:#fff;
+  }
+  input{
+    border-radius: 50%;
+    box-shadow: none;
+    border: navajowhite;
+    padding-left: 40px;
+    font-size: 16px;
+  }
+  .wrapper{
+    width: 295px;
+    height: 62px;
+    margin-top:20px !important;
+    border-radius: 31px;
+    box-shadow: inset 0 1px 5px 0 rgba(0, 0, 0, 0.5);
+    background-color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+  }
+  button{
+    width: 62px;
+    height: 62px;
+    box-shadow: -2px 2px 9px 0 rgba(0, 0, 0, 0.28);
+    background-color: #ffc700;
+    border-radius: 50%;
+  }
+  img{
+    position: absolute;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+    top: -91px;
+  }

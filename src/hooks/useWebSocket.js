@@ -72,7 +72,7 @@ const gameReducer = (state, action) => {
   }
 };
 
-export const useWebSocket = (url, bounderies) => {
+export const useWebSocket = (url, bounderies,username) => {
   const [messages, dispatch] = useReducer(gameReducer, initialState);
   const webSocket = useRef(null);
 
@@ -88,15 +88,19 @@ export const useWebSocket = (url, bounderies) => {
 
 
   useEffect(() => {
+    const firstData={
+      ...bounderies.current,
+      username
+    }
     webSocket.current.onopen = () => {
-      webSocket.current.send(JSON.stringify(bounderies.current))
+      webSocket.current.send(JSON.stringify(firstData))
     }
     return () => {
       webSocket.current.onclose = (e) => {
         console.log('e',e)
       }
     };
-  }, [bounderies]);
+  }, [bounderies,username]);
 
   const sendMessage = useCallback(message => {
     if (!message) return
